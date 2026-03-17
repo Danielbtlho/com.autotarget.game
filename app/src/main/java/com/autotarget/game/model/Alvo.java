@@ -18,7 +18,7 @@ public class Alvo implements Runnable {
     public Alvo(int screenWidth, int screenHeight) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-        this.raio = 100; // Tamanho fixo para o alvo
+        this.raio = 80; // Tamanho fixo para o alvo
         this.ativo = true;
 
         // Posição inicial aleatória dentro da tela
@@ -26,8 +26,8 @@ public class Alvo implements Runnable {
         this.y = random.nextFloat() * (screenHeight - 2 * raio) + raio;
 
         // Velocidade aleatória
-        this.velocidadeX = (random.nextFloat() * 10 - 5); // Entre -5 e 5
-        this.velocidadeY = (random.nextFloat() * 10 - 5); // Entre -5 e 5
+        this.velocidadeX = 15*(random.nextFloat() * 10 - 5); // Entre -5 e 5
+        this.velocidadeY = 15*(random.nextFloat() * 10 - 5); // Entre -5 e 5
 
         this.paint = new Paint();
         this.paint.setColor(Color.RED);
@@ -91,6 +91,17 @@ public class Alvo implements Runnable {
 
     public float getRaio() {
         return raio;
+    }
+
+
+
+    public boolean colideCom(float px, float py) {
+        float dx = this.x - px;
+        float dy = this.y - py;
+
+        float distancia = (float) Math.sqrt(dx * dx + dy * dy);
+
+        return distancia < this.raio; // ou tamanho do alvo
     }
 
 }

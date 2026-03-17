@@ -25,7 +25,23 @@ public class Canhao extends Thread {
         }
     }
     private void disparar() {
-        Projetil p = new Projetil(x, y, 10, 0);
+
+        if (jogo.getAlvos().isEmpty()) return;
+
+        Alvo alvo = jogo.getAlvos().get(0); // pega o primeiro alvo
+
+        float dx = alvo.getX() - x;
+        float dy = alvo.getY() - y;
+
+        float distancia = (float) Math.sqrt(dx * dx + dy * dy);
+
+        // normaliza
+        dx = dx / distancia;
+        dy = dy / distancia;
+
+        float velocidade = 15;
+
+        Projetil p = new Projetil(x, y, dx * velocidade, dy * velocidade);
 
         synchronized (jogo.getProjeteis()) {
             jogo.getProjeteis().add(p);

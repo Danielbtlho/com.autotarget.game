@@ -54,4 +54,28 @@ public class Jogo {
         }
         executorService.shutdownNow(); // Tenta parar todas as threads imediatamente
     }
+
+    public void verificarColisoes() {
+
+        synchronized (projeteis) {
+            synchronized (alvos) {
+
+                List<Projetil> projeteisRemover = new ArrayList<>();
+                List<Alvo> alvosRemover = new ArrayList<>();
+
+                for (Projetil p : projeteis) {
+                    for (Alvo a : alvos) {
+
+                        if (a.colideCom(p.getX(), p.getY())) {
+                            projeteisRemover.add(p);
+                            alvosRemover.add(a);
+                        }
+                    }
+                }
+
+                projeteis.removeAll(projeteisRemover);
+                alvos.removeAll(alvosRemover);
+            }
+        }
+    }
 }

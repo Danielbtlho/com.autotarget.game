@@ -1,5 +1,9 @@
 package com.autotarget.game.model;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+
 public class Projetil implements Runnable {
 
     private float x, y;
@@ -27,6 +31,12 @@ public class Projetil implements Runnable {
         }
     }
 
+    public void draw(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.YELLOW);
+
+        canvas.drawCircle(x, y, 10, paint);
+    }
     public float getX() {
         return x;
     }

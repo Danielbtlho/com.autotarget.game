@@ -3,6 +3,7 @@ package com.autotarget.game.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -34,6 +35,7 @@ public class GameView extends View {
         running = true;
         gameThread = new Thread(() -> {
             while (running) {
+                jogo.verificarColisoes();
                 // O movimento dos alvos já é tratado em suas próprias threads
                 // Aqui, apenas forçamos o redesenho da tela
                 postInvalidate(); // Solicita que a view seja redesenhada na thread da UI
@@ -70,7 +72,6 @@ public class GameView extends View {
 
         if (jogo != null) {
 
-            // desenha alvos
             for (Alvo alvo : jogo.getAlvos()) {
                 alvo.draw(canvas);
             }
@@ -79,9 +80,11 @@ public class GameView extends View {
                 c.draw(canvas);
             }
 
-            // 👇 adiciona isso
+            Paint paint = new Paint();
+            paint.setColor(Color.YELLOW);
+
             for (Projetil p : jogo.getProjeteis()) {
-                canvas.drawCircle(p.getX(), p.getY(), 10, new android.graphics.Paint());
+                canvas.drawCircle(p.getX(), p.getY(), 10, paint);
             }
         }
     }
