@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AutoTarget</string>
+    <string name="btn_start">Iniciar</string>
+    <string name="btn_add_cannon">Adicionar Canhão</string>
+    <string name="btn_stop">Parar</string>
+    <string name="score_label">Alvos abatidos: %d</string>
+    <string name="energy_label">Energia: %d</string>
+    <string name="time_label">Tempo: %ds</string>
+    <string name="game_over">Fim de Jogo!</string>
+    <string name="cannon_limit_reached">Limite máximo de canhões atingido!</string>
+</resources>

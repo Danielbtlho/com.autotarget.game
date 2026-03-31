@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark">
+
+    <!-- Área de jogo (Canvas) -->
+    <com.ufla.autotarget.ui.GameView
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/controlPanel" />
+
+    <!-- Painel de controle inferior -->
+    <LinearLayout
+        android:id="@+id/controlPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="12dp"
+        android:background="#CC1A1A2E">
+
+        <!-- Botão Adicionar Canhão -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddCannon"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="@string/btn_add_cannon"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/btn_cannon_bg"
+            android:textColor="@color/white"
+            app:cornerRadius="16dp"
+            app:icon="@android:drawable/ic_input_add"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+        <!-- Botão Iniciar/Parar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStart"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="@string/btn_start"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/btn_start_bg"
+            android:textColor="@color/white"
+            app:cornerRadius="16dp"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    </LinearLayout>
+
+</RelativeLayout>
