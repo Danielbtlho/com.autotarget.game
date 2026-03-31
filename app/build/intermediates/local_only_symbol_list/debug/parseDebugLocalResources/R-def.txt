@@ -38,4 +38,7 @@ string energy_label
 string game_over
 string score_label
 string time_label
+style Base.Theme.Comautotargetgame
 style Theme.AutoTarget
+xml backup_rules
+xml data_extraction_rules

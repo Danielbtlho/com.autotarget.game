@@ -3,7 +3,7 @@ package com.autotarget.game.controller;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.autotarget.game.R;
+import com.ufla.autotarget.R;
 import com.autotarget.game.model.Canhao;
 import com.autotarget.game.view.GameView;
 import com.autotarget.game.model.Jogo;

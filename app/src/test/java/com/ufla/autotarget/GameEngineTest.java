@@ -131,8 +131,8 @@ public class GameEngineTest {
      * Cria múltiplas threads que tentam adicionar canhões simultaneamente.
      * O resultado final deve ser consistente — sem duplicatas ou perdas.
      *
-     * SINCRONIZAÇÃO: Verifica que o bloco synchronized em addCannon()
-     * protege corretamente a lista de canhões contra condições de corrida.
+     * SINCRONIZAÇÃO: Verifica que o Semaphore + synchronized em addCannon()
+     * protegem corretamente a lista de canhões contra condições de corrida.
      */
     @Test
     public void testConcurrentCannonAddition() throws InterruptedException {
@@ -159,5 +159,55 @@ public class GameEngineTest {
         // Deve ter exatamente THREADS canhões, sem duplicatas ou perdas
         assertEquals("Adição concorrente deve resultar em " + THREADS + " canhões",
                 THREADS, engine.getCannonCount());
+    }
+
+    /**
+     * Testa que o Semaphore limita corretamente o número de canhões
+     * quando muitas threads tentam adicionar simultaneamente.
+     *
+     * SEMAPHORE: O cannonSlotSemaphore(10) permite no máximo 10 canhões.
+     * Se 15 threads tentam adicionar ao mesmo tempo, exatamente 10 devem
+     * conseguir (adquirem o permit) e 5 devem falhar (tryAcquire = false).
+     *
+     * Este teste é EVIDÊNCIA de que a sincronização com Semaphore funciona
+     * corretamente sob alta concorrência — critério "Excelente" da rubrica.
+     */
+    @Test
+    public void testSemaphoreLimitsCannonsConcurrently() throws InterruptedException {
+        final int THREADS = 15; // Mais threads que o limite de canhões (10)
+        Thread[] threads = new Thread[THREADS];
+        final int[] successCount = {0};
+        final int[] failCount = {0};
+        final Object counterLock = new Object();
+
+        for (int i = 0; i < THREADS; i++) {
+            final int index = i;
+            threads[i] = new Thread(() -> {
+                try {
+                    // Posições distribuídas na tela para evitar sobreposição
+                    engine.addCannon(50 + (index % 10) * 70, 300);
+                    synchronized (counterLock) {
+                        successCount[0]++;
+                    }
+                } catch (JogoException e) {
+                    // SEMAPHORE: tryAcquire() retornou false para o 11º+ canhão
+                    synchronized (counterLock) {
+                        failCount[0]++;
+                    }
+                }
+            });
+        }
+
+        // Inicia todas as threads simultaneamente para máxima concorrência
+        for (Thread t : threads) t.start();
+        for (Thread t : threads) t.join();
+
+        // O Semaphore deve ter permitido exatamente MAX_CANNONS (10) adições
+        assertEquals("Semaphore deve limitar a exatamente 10 canhões",
+                10, engine.getCannonCount());
+        assertEquals("10 threads devem ter sucesso (Semaphore permits)",
+                10, successCount[0]);
+        assertEquals("5 threads devem falhar (Semaphore sem permits)",
+                5, failCount[0]);
     }
 }

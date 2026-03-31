@@ -162,6 +162,10 @@ public class Cannon extends Thread {
 
             engine.addProjectile(projectile);
             projectile.start();
+
+            // Registra o disparo no log visual do HUD
+            String tipoAlvo = (target instanceof FastTarget) ? "Rápido" : "Comum";
+            engine.addActionLog("Canhão disparou → Alvo " + tipoAlvo);
         } catch (JogoException e) {
             // TRATAMENTO DE EXCEÇÕES: Captura erro ao adicionar projétil
             // (ex: limite excedido, recurso indisponível)

@@ -4,7 +4,7 @@
             "outputFile": "com.ufla.autotarget.app-mergeDebugResources-26:/values-small-v4/values-small-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Daniel\\.gradle\\caches\\transforms-4\\5ecd79e48484766038e6f3dd870705b9\\transformed\\material-1.9.0\\res\\values-small-v4\\values-small-v4.xml",
+                    "source": "C:\\Users\\Daniel\\.gradle\\caches\\transforms-4\\d61521c577964aa1eafc81c2a31dd07f\\transformed\\material-1.9.0\\res\\values-small-v4\\values-small-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
