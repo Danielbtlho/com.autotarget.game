@@ -197,9 +197,48 @@ public class GameEngine {
     public void startGame() {
         if (running) return;
 
+        // LIMPEZA PREVENTIVA: Remove entidades 'fantasma' de sessões anteriores.
+        // Garante que nenhum objeto da partida passada persista no motor.
+        // SYNCHRONIZED: Cada lista é limpa dentro do seu respectivo lock.
+        synchronized (targetLock) {
+            Log.d(SYNC_TAG, "[synchronized] targetLock adquirido para limpeza preventiva. " +
+                  "Alvos residuais: " + targets.size());
+            for (Target target : targets) {
+                target.setActive(false);
+                target.interrupt();
+            }
+            targets.clear();
+        }
+        synchronized (cannonLock) {
+            Log.d(SYNC_TAG, "[synchronized] cannonLock adquirido para limpeza preventiva. " +
+                  "Canhões residuais: " + cannons.size());
+            for (Cannon cannon : cannons) {
+                cannon.setActive(false);
+                cannon.interrupt();
+            }
+            cannons.clear();
+        }
+        synchronized (projectileLock) {
+            Log.d(SYNC_TAG, "[synchronized] projectileLock adquirido para limpeza preventiva. " +
+                  "Projéteis residuais: " + projectiles.size());
+            for (Projectile projectile : projectiles) {
+                projectile.setActive(false);
+                projectile.interrupt();
+            }
+            projectiles.clear();
+        }
+        synchronized (actionLogLock) {
+            actionLog.clear();
+        }
+
+        // Reseta o semáforo de slots de canhão para a nova partida
+        cannonSlotSemaphore.drainPermits();
+        cannonSlotSemaphore.release(MAX_CANNONS);
+
         running = true;
         score = 0;
         energy = INITIAL_ENERGY;
+        escapedTargets = 0;
         gameStartTime = System.currentTimeMillis();
 
         Log.d(TAG, "Jogo iniciado. Duração: " + (gameDuration / 1000) + "s");
@@ -235,8 +274,18 @@ public class GameEngine {
      * O cannonSlotSemaphore é resetado liberando todos os permits consumidos.
      */
     public void stopGame() {
+        if (!running) return; // Evita paradas duplicadas
+
         running = false;
-        Log.d(TAG, "Jogo parado. Score final: " + score);
+        int finalScore = score; // Captura o score final ANTES de resetar
+        Log.d(TAG, "Jogo parado. Score final: " + finalScore);
+
+        // NOTIFICAÇÃO ANTECIPADA: Notifica o listener com a pontuação final
+        // ANTES de limpar as listas e resetar o estado, garantindo que a
+        // Activity receba os valores corretos da partida encerrada.
+        if (listener != null) {
+            listener.onGameOver(finalScore);
+        }
 
         // Interrompe threads de gerenciamento
         if (targetSpawner != null) {
@@ -275,9 +324,6 @@ public class GameEngine {
         }
 
         // SEMAPHORE: Reseta o semáforo de slots de canhão para a próxima partida.
-        // Libera os permits que foram consumidos pelos canhões adicionados.
-        // drainPermits() remove todos os permits restantes, depois release(MAX)
-        // restaura todos os slots disponíveis.
         cannonSlotSemaphore.drainPermits();
         cannonSlotSemaphore.release(MAX_CANNONS);
         Log.d(SYNC_TAG, "[Semaphore] cannonSlotSemaphore resetado. " +
@@ -366,10 +412,12 @@ public class GameEngine {
 
                     long elapsed = System.currentTimeMillis() - gameStartTime;
                     if (elapsed >= gameDuration || energy <= 0) {
-                        running = false;
-                        if (listener != null) {
-                            listener.onGameOver(score);
-                        }
+                        // CENTRALIZAÇÃO: Chama stopGame() em vez de apenas
+                        // definir running = false. Isso garante que TODAS as
+                        // entidades sejam interrompidas e as listas limpas,
+                        // evitando persistência de canhões/alvos 'fantasma'
+                        // ao reiniciar o jogo.
+                        stopGame();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
