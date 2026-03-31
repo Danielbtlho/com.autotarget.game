@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements GameEngine.GameEv
             }
         });
 
+        // Desabilita botão de canhão até o jogo iniciar
+        btnAddCannon.setEnabled(false);
+
         // ---- Botão Adicionar Canhão ----
         btnAddCannon.setOnClickListener(v -> {
             addCannon();
@@ -79,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements GameEngine.GameEv
         btnStart.setBackgroundColor(getResources().getColor(R.color.btn_stop_bg));
         btnStart.setIconResource(android.R.drawable.ic_media_pause);
 
+        // Habilita adição de canhões somente com o jogo em execução
+        btnAddCannon.setEnabled(true);
+
         Toast.makeText(this, "Jogo iniciado! Adicione canhões para defender.", Toast.LENGTH_SHORT).show();
     }
 
@@ -93,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements GameEngine.GameEv
         btnStart.setText(R.string.btn_start);
         btnStart.setBackgroundColor(getResources().getColor(R.color.btn_start_bg));
         btnStart.setIconResource(android.R.drawable.ic_media_play);
+
+        // Desabilita adição de canhões com o jogo parado
+        btnAddCannon.setEnabled(false);
     }
 
     /**
@@ -161,6 +170,9 @@ public class MainActivity extends AppCompatActivity implements GameEngine.GameEv
             btnStart.setText(R.string.btn_start);
             btnStart.setBackgroundColor(getResources().getColor(R.color.btn_start_bg));
             btnStart.setIconResource(android.R.drawable.ic_media_play);
+
+            // Desabilita adição de canhões ao fim da partida
+            btnAddCannon.setEnabled(false);
 
             Toast.makeText(this,
                     "🏆 Fim de Jogo! Pontuação final: " + finalScore,

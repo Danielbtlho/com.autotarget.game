@@ -443,6 +443,13 @@ public class GameEngine {
      * @throws JogoException se posição inválida ou limite excedido
      */
     public void addCannon(float x, float y) throws JogoException {
+        // Validação de estado — impede adicionar canhão com o jogo parado
+        if (!running) {
+            throw new JogoException(
+                "O jogo não está em execução. Inicie o jogo antes de adicionar canhões."
+            );
+        }
+
         // Validação de posição — lança exceção com mensagem descritiva
         if (x < 0 || x > screenWidth || y < 0 || y > screenHeight) {
             throw new JogoException(
