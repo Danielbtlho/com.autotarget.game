@@ -52,4 +52,16 @@ public class CommonTarget extends Target {
         // Rebote nas bordas
         bounceOffWalls();
     }
+
+    /** Cor ciano — identidade visual do alvo comum. */
+    @Override
+    public int getColor() { return 0xFF4FC3F7; }
+
+    /** Glow ciano com alpha reduzido. */
+    @Override
+    public int getGlowColor() { return 0x404FC3F7; }
+
+    /** Nome descritivo para logs e HUD. */
+    @Override
+    public String getTypeName() { return "Comum"; }
 }

@@ -15,8 +15,6 @@ import android.view.View;
 
 import com.ufla.autotarget.engine.GameEngine;
 import com.ufla.autotarget.model.Cannon;
-import com.ufla.autotarget.model.CommonTarget;
-import com.ufla.autotarget.model.FastTarget;
 import com.ufla.autotarget.model.Projectile;
 import com.ufla.autotarget.model.Target;
 
@@ -38,8 +36,9 @@ import java.util.List;
  * 2. O framework Android gerencia o double-buffering automaticamente
  * 3. Objetos Paint são reutilizados (sem alocação durante onDraw)
  *
- * POLIMORFISMO VISUAL: CommonTarget (azul/ciano) e FastTarget (vermelho/magenta)
- * utilizam cores distintas via instanceof, facilitando identificação imediata.
+ * POLIMORFISMO VISUAL (Princípio Open/Closed): As cores de cada tipo de alvo
+ * são obtidas via target.getColor() e target.getGlowColor(), sem usar instanceof.
+ * Novos tipos de alvos podem ser adicionados sem modificar esta View.
  */
 public class GameView extends View {
 
@@ -333,8 +332,11 @@ public class GameView extends View {
      * - CommonTarget → Ciano/Azul (alvo lento, previsível)
      * - FastTarget → Vermelho/Magenta (alvo rápido, errático)
      *
-     * A cor é determinada por instanceof, refletindo visualmente
-     * o polimorfismo de move() entre CommonTarget e FastTarget.
+     * POLIMORFISMO VISUAL (Open/Closed Principle):
+     * - As cores são obtidas via target.getColor() e target.getGlowColor()
+     * - Cada subclasse (CommonTarget, FastTarget, etc.) define suas próprias cores
+     * - A View NÃO precisa conhecer os tipos concretos (sem instanceof)
+     * - Novos tipos de alvo podem ser adicionados sem alterar este método
      */
     private void drawTarget(Canvas canvas, Target target) {
         float x = target.getX();
@@ -345,16 +347,9 @@ public class GameView extends View {
         float pulse = 1.0f + 0.08f * (float) Math.sin(frameCount * 0.05);
         float drawRadius = r * pulse;
 
-        // POLIMORFISMO VISUAL: Cor baseada no tipo concreto
-        int color;
-        int glowColor;
-        if (target instanceof FastTarget) {
-            color = COLOR_FAST_TARGET;
-            glowColor = COLOR_FAST_GLOW;
-        } else {
-            color = COLOR_COMMON_TARGET;
-            glowColor = COLOR_COMMON_GLOW;
-        }
+        // POLIMORFISMO: Cores delegadas ao próprio alvo (sem instanceof)
+        int color = target.getColor();
+        int glowColor = target.getGlowColor();
 
         // Efeito glow (brilho) ao redor do alvo
         targetGlowPaint.setShader(new RadialGradient(x, y, drawRadius * 2,

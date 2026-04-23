@@ -75,10 +75,28 @@ public class GameEngine {
     private final ArrayList<Projectile> projectiles;
 
     // =====================================================================
-    // MECANISMO 1: OBJETOS MONITOR (synchronized)
-    // Um lock por lista para maximizar concorrência entre operações em
-    // listas diferentes. Se usássemos um único lock, adicionar um alvo
-    // bloquearia a leitura de canhões — desnecessário e ineficiente.
+    // MECANISMO 1: OBJETOS MONITOR (synchronized) — FINE-GRAINED LOCKING
+    //
+    // Utilizamos LOCKS GRANULARES (um lock por lista) em vez de um único
+    // lock global. Cada recurso compartilhado tem seu próprio monitor:
+    //   - targetLock     → protege a lista de alvos
+    //   - cannonLock     → protege a lista de canhões
+    //   - projectileLock → protege a lista de projéteis
+    //
+    // PREVENÇÃO DE DEADLOCK (Circular Wait):
+    // Com Fine-Grained Locking, cada thread só adquire UM lock por vez
+    // para operar em sua lista respectiva. Não há aninhamento de locks
+    // entre listas diferentes (ex: nunca se adquire targetLock DENTRO
+    // de cannonLock), eliminando a condição de espera circular.
+    //
+    // Sem Fine-Grained Locking (lock global único), adicionar um alvo
+    // bloquearia a leitura de canhões — desnecessário e ineficiente,
+    // pois são recursos independentes.
+    //
+    // MAXIMIZAÇÃO DE CONCORRÊNCIA: Threads que operam em listas diferentes
+    // podem executar simultaneamente. Ex: um novo alvo pode ser adicionado
+    // (targetLock) enquanto um canhão busca alvos (snapshot via targetLock
+    // liberado) e um projétil é adicionado (projectileLock).
     // =====================================================================
     private final Object targetLock = new Object();
     private final Object cannonLock = new Object();
@@ -449,11 +467,13 @@ public class GameEngine {
 
         target.setEngine(this);
 
-        // SYNCHRONIZED: Adiciona à lista dentro de bloco synchronized
-        String tipoAlvo = (target instanceof FastTarget) ? "Rápido" : "Comum";
+        // SYNCHRONIZED (Fine-Grained Locking): Usa targetLock exclusivamente
+        // para proteger a lista de alvos. Não aninha com outros locks,
+        // prevenindo Circular Wait e possíveis Deadlocks.
+        String tipoAlvo = target.getTypeName();
         synchronized (targetLock) {
             targets.add(target);
-            Log.d(SYNC_TAG, "[synchronized] Alvo adicionado à lista. " +
+            Log.d(SYNC_TAG, "[synchronized/Fine-Grained] targetLock adquirido para adicionar alvo. " +
                   "Tipo: " + target.getClass().getSimpleName() +
                   " | Total: " + targets.size() +
                   " | Thread: " + Thread.currentThread().getName());
@@ -679,8 +699,8 @@ public class GameEngine {
                         // Incrementa pontuação (seguro — exclusão mútua garantida)
                         score += target.getScoreValue();
 
-                        // Determina tipo do alvo para log visual
-                        String tipo = (target instanceof FastTarget) ? "Rápido" : "Comum";
+                        // Determina tipo do alvo para log visual (sem instanceof)
+                        String tipo = target.getTypeName();
                         addActionLog("Alvo " + tipo + " destruído! +" + target.getScoreValue());
 
                         Log.d(TAG, "COLISÃO! " + target.getClass().getSimpleName() +

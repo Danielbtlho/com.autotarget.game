@@ -140,8 +140,12 @@ public class Cannon extends Thread {
      * garantindo adição atômica à lista de projéteis.
      * Múltiplos canhões podem disparar simultaneamente sem conflito.
      *
-     * TRATAMENTO DE EXCEÇÕES: try-catch para capturar JogoException
-     * ao adicionar o projétil, evitando crash da thread do canhão.
+     * GRACEFUL DEGRADATION: Se o disparo falhar por falta de recursos
+     * ou erro na engine, a thread do canhão:
+     * 1. Registra o erro no Log (para diagnóstico no Logcat)
+     * 2. Define seu estado como inativo (this.active = false)
+     * 3. Notifica o sistema via actionLog para que o HUD informe ao
+     *    usuário que uma torre de defesa parou de funcionar
      *
      * @param target o alvo para mirar
      */
@@ -163,17 +167,21 @@ public class Cannon extends Thread {
             engine.addProjectile(projectile);
             projectile.start();
 
-            // Registra o disparo no log visual do HUD
-            String tipoAlvo = (target instanceof FastTarget) ? "Rápido" : "Comum";
-            engine.addActionLog("Canhão disparou → Alvo " + tipoAlvo);
+            // Registra o disparo no log visual do HUD (sem instanceof)
+            engine.addActionLog("Canhão disparou → Alvo " + target.getTypeName());
         } catch (JogoException e) {
-            // TRATAMENTO DE EXCEÇÕES: Captura erro ao adicionar projétil
-            // (ex: limite excedido, recurso indisponível)
-            // A thread do canhão continua funcionando mesmo com erro no disparo
-            e.printStackTrace();
+            // GRACEFUL DEGRADATION: Falha crítica no disparo.
+            // O canhão não consegue cumprir sua função — desativa a torre
+            // e notifica o sistema para feedback visual ao jogador.
+            android.util.Log.e("Cannon", "Falha no disparo — canhão desativado: " + e.getMessage());
+            this.active = false;
+            engine.addActionLog("⚠ Canhão falhou e foi desativado: " + e.getMessage());
         } catch (ArithmeticException e) {
-            // TRATAMENTO: Captura possíveis exceções matemáticas
-            e.printStackTrace();
+            // TRATAMENTO: Erro matemático inesperado — desativa o canhão
+            // para evitar loops de erro contínuos que desperdiçariam CPU.
+            android.util.Log.e("Cannon", "Erro matemático no disparo — canhão desativado: " + e.getMessage());
+            this.active = false;
+            engine.addActionLog("⚠ Canhão desativado por erro interno");
         }
     }
 

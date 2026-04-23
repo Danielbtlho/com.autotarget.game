@@ -56,4 +56,16 @@ public class FastTarget extends Target {
         // Rebote nas bordas
         bounceOffWalls();
     }
+
+    /** Cor vermelha — identidade visual do alvo rápido (perigo). */
+    @Override
+    public int getColor() { return 0xFFEF5350; }
+
+    /** Glow vermelho com alpha reduzido. */
+    @Override
+    public int getGlowColor() { return 0x40EF5350; }
+
+    /** Nome descritivo para logs e HUD. */
+    @Override
+    public String getTypeName() { return "Rápido"; }
 }

@@ -122,6 +122,30 @@ public abstract class Target extends Thread {
     public abstract void move();
 
     /**
+     * Retorna a cor principal do alvo para renderização (Princípio Open/Closed).
+     * Cada subclasse define sua própria cor, eliminando a necessidade de
+     * blocos instanceof na View — novos tipos de alvo podem ser adicionados
+     * sem alterar GameView ou GameEngine.
+     *
+     * @return cor ARGB do alvo
+     */
+    public abstract int getColor();
+
+    /**
+     * Retorna a cor de glow (brilho) do alvo para o efeito visual.
+     * @return cor ARGB do glow (com alpha reduzido)
+     */
+    public abstract int getGlowColor();
+
+    /**
+     * Retorna o nome descritivo do tipo de alvo para logs e HUD.
+     * Substitui o uso de instanceof + ternário espalhado pelo código.
+     *
+     * @return nome do tipo (ex: "Comum", "Rápido")
+     */
+    public abstract String getTypeName();
+
+    /**
      * Calcula a distância euclidiana entre este alvo e um ponto (px, py).
      * Usado pelos canhões para encontrar o alvo mais próximo.
      *
